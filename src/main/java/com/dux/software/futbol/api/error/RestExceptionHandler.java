@@ -5,6 +5,8 @@ import com.dux.software.futbol.api.exceptions.UserNameAlreadyExistsException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -18,7 +20,7 @@ public class RestExceptionHandler {
     return this.buildResponse(apiError);
   }
 
-  @ExceptionHandler(ResourceNotFoundException.class)
+  @ExceptionHandler({ResourceNotFoundException.class, InternalAuthenticationServiceException.class})
   protected ResponseEntity<Object> ResourceNotFoundException(ResourceNotFoundException resourceNotFoundException) {
     ApiError apiError = new ApiError(HttpStatus.NOT_FOUND);
     apiError.setMensaje(resourceNotFoundException.getMessage());
@@ -36,6 +38,13 @@ public class RestExceptionHandler {
   protected ResponseEntity<Object> UserNameAlreadyExistsException(UserNameAlreadyExistsException userNameAlreadyExistsException) {
     ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
     apiError.setMensaje(userNameAlreadyExistsException.getMessage());
+    return buildResponse(apiError);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  protected ResponseEntity<Object> BadCredentialsException(BadCredentialsException dataIntegrityViolationException) {
+    ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED);
+    apiError.setMensaje( "Credenciales inválidas" );
     return buildResponse(apiError);
   }
 
