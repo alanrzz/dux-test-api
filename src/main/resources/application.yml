@@ -16,3 +16,10 @@ spring:
       mode: always
   h2:
     console.enabled: true
+  jwt:
+    secretKey: lLBc+4Z7I0X5pRSbVuY70b0Al8qhze2WyCfKHq3ZKjM=
+    tokenExpirationMillis: 86400000
+    defaultUser:
+      username: test
+      password: 12345
+      role: ADMIN
