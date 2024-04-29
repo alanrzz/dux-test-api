@@ -11,6 +11,7 @@ import com.dux.software.futbol.api.exceptions.UserNameAlreadyExistsException;
 import com.dux.software.futbol.api.repositories.UserRepository;
 import com.dux.software.futbol.api.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
   private final UserRepository userRepository;
@@ -27,6 +29,7 @@ public class AuthService {
   private final AuthenticationManager authenticationManager;
 
   public AuthResponseDto login(LoginRequestDto loginRequestDto) {
+    log.debug("START login({})", loginRequestDto.getUsername());
     authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(
         loginRequestDto.getUsername(), loginRequestDto.getPassword() ) );
     UserDetails userDetails = findOrFail( loginRequestDto.getUsername() );
@@ -34,6 +37,7 @@ public class AuthService {
   }
 
   public AuthResponseDto register(RegisterRequestDto registerRequestDto) {
+    log.debug("START register({})", registerRequestDto.getUsername());
     usernameAlreadyExists( registerRequestDto.getUsername() );
     User user = User.builder()
         .username( registerRequestDto.getUsername() )
@@ -45,15 +49,18 @@ public class AuthService {
   }
 
   private AuthResponseDto buildResponse(UserDetails user) {
+    log.debug("START buildResponse({})", user.getUsername());
     return new AuthResponseDto( jwtService.getToken( user ) );
   }
 
   private User findOrFail(String username) {
+    log.debug("START findOrFail({})", username);
     return userRepository.findByUsername( username )
         .orElseThrow(() -> new ResourceNotFoundException( "No existe el usuario = " + username ));
   }
 
   private void usernameAlreadyExists(String username) {
+    log.debug("START usernameAlreadyExists({})", username);
     if (userRepository.findByUsername( username ).isPresent()) {
       throw new UserNameAlreadyExistsException( "El nombre de usuario ya está en uso." );
     }
